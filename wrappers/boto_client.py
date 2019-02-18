@@ -1,23 +1,14 @@
-def boto_client(session_type):
+import boto3
+
+def boto_client(session_type, profile, region_name):
     '''
     Boto3 Session handler
     '''
     
-    # If keys were passed, use those
-    if ACCESSKEY and SECRETKEY:
+    return boto3.Session(
+        
+        profile_name            = profile, 
+        region_name             = region_name
+        
+        ).client(session_type)
 
-        return boto3.Session(
-
-            aws_access_key_id       = ACCESSKEY,
-            aws_secret_access_key   = SECRETKEY, 
-            region_name             = region_name
-            
-            ).client(session_type)
-
-    else:
-        return boto3.Session(
-            
-            profile_name            = PROFILE, 
-            region_name             = region_name
-            
-            ).client(session_type)

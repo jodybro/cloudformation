@@ -43,12 +43,6 @@ PARSER.add_argument('--availablity-zones', '-az',
                     required        = True,
                     nargs           = '+' )
 
-PARSER.add_argument('--access-key-id',
-                    help            = "Access key id for your aws account" )
-
-PARSER.add_argument('--secret-key-id',
-                    help            = "Secret key id for your aws account")
-
 PARSER.add_argument('--profile', '-p',
                     help            = "AWS cli profile to use",
                     default         = "default")
