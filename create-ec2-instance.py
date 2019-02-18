@@ -38,12 +38,12 @@ PARSER.add_argument('--monitoring', '-m',
                     default         = False )
 
 PARSER.add_argument('--subnet', '-s',
-                    help            = "Mandatory. Subnet that the instance will will inside.", 
+                    help            = "Mandatory. Subnet that the instance will live inside.", 
                     required        = True )
 
 PARSER.add_argument('--name', '-n',
                     help            = "Mandatory. Name tag of the instance",
-                    required        = True)
+                    required        = True )
 
 ARGS = PARSER.parse_args()
 
