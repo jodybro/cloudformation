@@ -45,6 +45,9 @@ PARSER.add_argument('--name', '-n',
                     help            = "Mandatory. Name tag of the instance",
                     required        = True )
 
+PARSER.add_argument('--profile', '-p',
+                    help            = "AWS profile that you want to use")
+
 ARGS = PARSER.parse_args()
 
 
