@@ -7,6 +7,7 @@ from troposphere.ec2 import DHCPOptions
 from troposphere.ec2 import VPCDHCPOptionsAssociation
 from troposphere.ec2 import Subnet
 from troposphere.ec2 import InternetGateway
+from troposphere.ec2 import VPCGatewayAttachment
 
 from troposphere import Ref
 from troposphere import GetAtt
@@ -72,13 +73,17 @@ def generate_template():
     
     # Associate the DHCP Options set with the VPC
     template.add_resource(VPCDHCPOptionsAssociation("DHCPAssociation",
-                    DhcpOptionsId       = Ref("DHCPOtions"), 
+                    DhcpOptionsId       = Ref("DHCPOptions"), 
                     VpcId               = Ref("VPC") ))
 
     # Determine if public access is needed. If so, attach an IGW to the VPC
     if ARGS.public_access:
         template.add_resource(InternetGateway("IGW",
                     Tags                = [{"Key": "Name", "Value": "%s-igw" % ARGS.name }] ))
+        
+        template.add_resource(VPCGatewayAttachment("IGWAttachment",
+                    InternetGatewayId   = Ref("IGW"),
+                    VpcId               = Ref("VPC") ))
     
     # Join subnets + az lists together and create subnet resources
     for index, subnets in enumerate(zip(ARGS.subnets, ARGS.availablity_zones)):
