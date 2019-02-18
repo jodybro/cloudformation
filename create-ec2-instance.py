@@ -5,6 +5,9 @@ from cfn_flip        import to_yaml
 from troposphere.ec2 import Instance
 from troposphere     import Template
 
+from wrappers.cloudformation_stack import CFStack
+from wrappers.boto_client import boto_client
+
 import argparse
 
 PARSER = argparse.ArgumentParser(description = 'Generate Cloudformatin for a new EC2 instance in an existing VPC')
@@ -46,7 +49,8 @@ PARSER.add_argument('--name', '-n',
                     required        = True )
 
 PARSER.add_argument('--profile', '-p',
-                    help            = "AWS profile that you want to use")
+                    help            = "AWS profile that you want to use",
+                    default         = "default")
 
 PARSER.add_argument('--stack-name',
                     help            = "Name tag to assign to the stack",
@@ -75,12 +79,22 @@ def generate_template():
                         Tags                    = [{"Key": "Name", "Value": "%s" % ARGS.name }] ))
                         
     template_body = (to_yaml(template.to_json(), clean_up = True))
-    return template_body
 
-if ARGS.output:
-    print " "
-    print generate_template()
+    # Create a client to cloudformation
+    cloudformation_client = boto_client('cloudformation', ARGS.profile, ARGS.region)
+
+    # Instantiate the CF Stack class
+    cf_stack = CFStack(template_body, ARGS.stack_name, cloudformation_client)
+
+    print('---[ Creating stack %s in region %s' % (ARGS.stack_name, ARGS.region))
+    cf_stack.deploy_stack()
+
+    if ARGS.output:
+        print template_body
+        print " "
 
 
+if __name__ == "__main__":
+    generate_template()
 
                 
