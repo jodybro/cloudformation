@@ -48,6 +48,14 @@ PARSER.add_argument('--name', '-n',
 PARSER.add_argument('--profile', '-p',
                     help            = "AWS profile that you want to use")
 
+PARSER.add_argument('--stack-name',
+                    help            = "Name tag to assign to the stack",
+                    required        = True)
+
+PARSER.add_argument('--output', '-o',
+                    help            = "Send the generated yaml to stdout",
+                    default         = False)
+
 ARGS = PARSER.parse_args()
 
 
@@ -69,8 +77,9 @@ def generate_template():
     template_body = (to_yaml(template.to_json(), clean_up = True))
     return template_body
 
-print " "
-print generate_template()
+if ARGS.output:
+    print " "
+    print generate_template()
 
 
 
