@@ -2,6 +2,8 @@
 # Dependencies: troposphere, argparse, cfn_flip
 
 from troposphere     import Template
+from troposphere     import Ref
+from troposphere     import GetAtt
 from troposphere.ec2 import VPC
 from troposphere.ec2 import DHCPOptions
 from troposphere.ec2 import VPCDHCPOptionsAssociation
@@ -9,11 +11,8 @@ from troposphere.ec2 import Subnet
 from troposphere.ec2 import InternetGateway
 from troposphere.ec2 import VPCGatewayAttachment
 
-from troposphere import Ref
-from troposphere import GetAtt
-
+from wrappers.boto_client import boto_client
 from cfn_flip import to_yaml
-
 import argparse
 
 PARSER = argparse.ArgumentParser(description = 'Generate cloudformation for a new VPC')
@@ -43,6 +42,16 @@ PARSER.add_argument('--availablity-zones', '-az',
                     help            = "AZ's to create the new subnets in. First az passed in goes to the first subnet, second az to second subnet etc...",
                     required        = True,
                     nargs           = '+' )
+
+PARSER.add_argument('--access-key-id',
+                    help            = "Access key id for your aws account" )
+
+PARSER.add_argument('--secret-key-id',
+                    help            = "Secret key id for your aws account")
+
+PARSER.add_argument('--profile', '-p',
+                    help            = "AWS cli profile to use",
+                    default         = "default")
 
 ARGS = PARSER.parse_args()
 ### End command line arguments
@@ -94,6 +103,7 @@ def generate_template():
 
 
     template_body = (to_yaml(template.to_json(), clean_up = True))
+
     return template_body
 
 print " "
