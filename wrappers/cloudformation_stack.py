@@ -30,5 +30,6 @@ class CFStack:
         waiter = self.cloudformation_client.get_waiter('stack_create_complete')
         waiter.wait(StackName = self.stack_name)
 
-        
 
+
+        
