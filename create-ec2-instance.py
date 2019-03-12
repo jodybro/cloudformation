@@ -80,19 +80,22 @@ def generate_template():
                         
     template_body = (to_yaml(template.to_json(), clean_up = True))
 
+    # Send the template to stdout and exit
+    if ARGS.output:
+        print " "
+    print template_body
+    print " "
+    exit()
+
     # Create a client to cloudformation
     cloudformation_client = boto_client('cloudformation', ARGS.profile, ARGS.region)
 
     # Instantiate the CF Stack class
     cf_stack = CFStack(template_body, ARGS.stack_name, cloudformation_client)
 
+
     print('---[ Creating stack %s in region %s' % (ARGS.stack_name, ARGS.region))
     cf_stack.deploy_stack()
-
-    if ARGS.output:
-        print template_body
-        print " "
-
 
 if __name__ == "__main__":
     generate_template()
