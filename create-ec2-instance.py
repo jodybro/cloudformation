@@ -1,14 +1,19 @@
+#!/usr/bin/env python3.7
 # Script to generate a Cloudformation script for a new EC2 instance in an existing VPC
 # Dependencies: troposphere, argparse, cfn_flip
 
-from cfn_flip        import to_yaml
-from troposphere.ec2 import Instance
-from troposphere     import Template
-
-from wrappers.cloudformation_stack import CFStack
-from wrappers.boto_client import boto_client
-
+# Standard library imports
 import argparse
+
+# Third party imports
+from cfn_flip                       import to_yaml
+from troposphere.ec2                import Instance
+from troposphere                    import Template
+from troposphere.cloudformation     import AWSCustomObject
+
+# Custom module imports
+from wrappers.cloudformation_stack  import CFStack
+from wrappers.boto_client           import boto_client
 
 PARSER = argparse.ArgumentParser(description = 'Generate Cloudformatin for a new EC2 instance in an existing VPC')
 
@@ -62,7 +67,6 @@ PARSER.add_argument('--output', '-o',
 
 ARGS = PARSER.parse_args()
 
-
 def generate_template():
 
     # Initialize a new template
@@ -70,22 +74,29 @@ def generate_template():
 
     # Create the instance definition
     template.add_resource(Instance("Instance",
-                        AvailabilityZone        = "%s" % (ARGS.availability_zone), 
-                        IamInstanceProfile      = "%s" % (ARGS.iam_profile),
-                        ImageId                 = "%s" % (ARGS.image_id),
-                        KeyName                 = "%s" % (ARGS.key_name),
-                        Monitoring              = "%s" % (ARGS.monitoring),
-                        SubnetId                = "%s" % (ARGS.subnet),
-                        Tags                    = [{"Key": "Name", "Value": "%s" % ARGS.name }] ))
+                        AvailabilityZone        = f"{ARGS.availability_zone}", 
+                        IamInstanceProfile      = f"{ARGS.iam_profile}",
+                        ImageId                 = f"{ARGS.image_id}",
+                        KeyName                 = f"{ARGS.key_name}",
+                        Monitoring              = f"{ARGS.monitoring}",
+                        SubnetId                = f"{ARGS.subnet}",
+                        Tags                    = [{"Key": "Name", "Value": f"{ARGS.name}" }] ))
+    
+    
+    template.add_resource(CustomCidrFinder("CidrFinder",
+                        ServiceToken            = 'test',
+                        VpcId                   = Ref(VPC),
+                        Sizes                   = [24, 25, 26]
+                        ))
                         
     template_body = (to_yaml(template.to_json(), clean_up = True))
 
     # Send the template to stdout and exit
     if ARGS.output:
         print " "
-    print template_body
-    print " "
-    exit()
+        print template_body
+        print " "
+        exit()
 
     # Create a client to cloudformation
     cloudformation_client = boto_client('cloudformation', ARGS.profile, ARGS.region)
@@ -94,10 +105,9 @@ def generate_template():
     cf_stack = CFStack(template_body, ARGS.stack_name, cloudformation_client)
 
 
-    print('---[ Creating stack %s in region %s' % (ARGS.stack_name, ARGS.region))
+    print(f"---[ Creating stack {ARGS.stack_name} in region {ARGS.region}")
     cf_stack.deploy_stack()
 
 if __name__ == "__main__":
     generate_template()
 
-                
